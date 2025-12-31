@@ -42,10 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app',
     'rest_framework',
+    'app',
     'drf_yasg',
-    
+    'django_seed',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -125,13 +127,26 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+
+AUTH_USER_MODEL = 'app.User'
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://django:mysecret@localhost:6379/0",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',  # Use the appropriate Redis server URL
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
     }
 }
-AUTH_USER_MODEL = 'app.User'
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
+# Configure the toolbar
+DEBUG_TOOLBAR_PANELS = [
+    'debug_toolbar.panels.cache.CachePanel',
+    # other panels
+]
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

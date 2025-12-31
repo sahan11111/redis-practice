@@ -7,5 +7,9 @@ class SampleModel(models.Model):
     
     
 class User(AbstractUser):
-    pass
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('student', 'Student'),
+    ]
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     
