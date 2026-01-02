@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'django_seed',
     'debug_toolbar',
+    "django_redis",
 ]
 
 MIDDLEWARE = [
