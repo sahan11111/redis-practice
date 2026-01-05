@@ -1,13 +1,16 @@
+
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-
+import redis
+import json
 from .seralizers import UserSerializer, SampleModelSerializer
 from .rate_limiter import rate_limit
 from . import models
 
+r=redis.Redis(host='localhost', port=6379, db=0)
 User = get_user_model()
 
 class SampleModelViewSet(ModelViewSet):
@@ -18,7 +21,7 @@ class SampleModelViewSet(ModelViewSet):
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     CACHE_KEY = "users_list_v1"
     CACHE_TTL = 300
@@ -36,3 +39,23 @@ class UserViewSet(ModelViewSet):
             print("⚡ CACHE HIT")
 
         return Response(data)
+
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.save()
+
+        message = {
+            "event": "USER_CREATED",
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+        }
+
+        r.publish("user_notifications", json.dumps(message))
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
+        
